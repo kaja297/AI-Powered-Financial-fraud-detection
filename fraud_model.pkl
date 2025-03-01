@@ -1,0 +1,35 @@
+import pandas as pd
+import joblib
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+# Load the dataset
+df = pd.read_csv(r"Financial.csv")
+
+
+# Preprocessing
+df.fillna(0, inplace=True)
+df = df.iloc[:80000]
+
+# Encoding categorical features
+le = LabelEncoder()
+df['type'] = le.fit_transform(df['type'])
+df['nameOrig'] = le.fit_transform(df['nameOrig'])
+df['nameDest'] = le.fit_transform(df['nameDest'])
+
+# Splitting data into features and target variable
+X = df.drop(columns=['isFraud'])
+y = df['isFraud']
+
+# Splitting into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train a Random Forest model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# Save the trained model
+joblib.dump(model, 'fraud_model.pkl')
+
+print("✅ Model trained and saved as fraud_model.pkl")
